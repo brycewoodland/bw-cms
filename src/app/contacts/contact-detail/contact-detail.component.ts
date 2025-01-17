@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Contact } from '../contact.model';
 
 @Component({
   selector: 'cms-contact-detail',

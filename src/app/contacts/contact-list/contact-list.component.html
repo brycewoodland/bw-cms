@@ -1,16 +1,18 @@
-<div class="col-xs-12">
-    <button class="btn btn-success">New Contact</button>
-</div>
-<div class="row">
-    <div class="col-xs-12">
-        <a href="#" class="list-group-item clearfix" *ngFor="let contact of contacts">
-            <div class="pull-left">
-                <h4 class="list-group-item-heading">Contacts</h4>
-                <p class="list-group-item-text">{{ contact.name }}</p>
-            </div>
-            <span class="pull-right">
-                <img [src]="contact.imageUrl" alt="{{ contact.name }}" class="img-responsive" style="max-height: 50px;">
-            </span>
-        </a>
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h2 class="panel-body pull-left" style="margin: 0;">Contacts</h2>
+        <a href="#" class="panel-body btn btn-success pull-right" style="margin: 0; line-height: normal;">New Contact</a>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="#" class="list-group-item clearfix" *ngFor="let contact of contacts">
+                <div class="pull-left">
+                    <h3 class="list-group-item-text">{{ contact.name }}</h3>
+                </div>
+                <span class="pull-right">
+                    <img [src]="contact.imageUrl" alt="{{ contact.name }}" class="img-responsive" style="max-height: 50px;">
+                </span>
+            </a>
+        </div>
     </div>
 </div>
