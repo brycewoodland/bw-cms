@@ -1,33 +1,39 @@
 <div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Edit Message</h3>
+    </div>
     <div class="panel-body">
-    <form id="document-edit">
-    <div class="row">
-    <div class="col-sm-12 form-group">
-    <label for="subject">Subject</label>
-    <input
-    type="text"
-    id="subject"
-    class="form-control"
-    size="120"
-    max="120">
+        <form id="document-edit">
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label for="subject">Subject</label>
+                    <input
+                        type="text"
+                        id="subject"
+                        class="form-control"
+                        maxlength="120"
+                        placeholder="Enter subject"
+                        #subject>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label for="message">Message</label>
+                    <textarea
+                        id="message"
+                        class="form-control"
+                        maxlength="255"
+                        rows="5"
+                        placeholder="Enter your message"
+                        #msgText></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                    <button class="btn btn-success mr-3" type="submit" (click)="onSendMessage()">Send</button>
+                    <button class="btn btn-danger" type="button" (click)="onClear()">Clear</button>
+                </div>
+            </div>
+        </form>
     </div>
-    
-    <div class="col-sm-12 form-group">
-    <label for="message">Message</label>
-    <input
-    type="text"
-    id="message"
-    class="form-control"
-    max="255"
-    size="120">
-    </div>
-    </div>
-    <div class="row">
-    <div class="col-xs-12">
-    <button class="btn btn-success" type="submit">Send</button>
-    <button class="btn btn-danger" type="button">Clear</button>
-    </div>
-    </div>
-    </form>
-    </div>
-    </div>
+</div>
