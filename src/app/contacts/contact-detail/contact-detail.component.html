@@ -1,15 +1,16 @@
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h2 class="mb-0"></h2>
-        <div class="panel-body">
-            <div class="panel-actions pull-right">
+<div class="panel panel-default" *ngIf="contact">
+    <div class="panel-heading d-flex align-items-center justify-content-between">
+        <div>
+            <h2 class="mb-0">{{ contact.name }}</h2>
+            <div class="panel-actions d-flex align-items-center pull-right">
                 <a class="btn btn-primary mr-3" href="#">Edit</a>
                 <a class="btn btn-danger" href="#">Delete</a>
             </div>
         </div>
+        <img [src]="contact.imageUrl" alt="{{ contact.name }}" class="img-thumbnail" style="max-height: 150px;">
     </div>
     <div class="panel-body">
-        <p><strong>Email:</strong></p>
-        <p><strong>Phone:</strong></p>
+        <p><strong>Email:</strong> {{ contact.email }}</p>
+        <p><strong>Phone:</strong> {{ contact.phone }}</p>
     </div>
 </div>

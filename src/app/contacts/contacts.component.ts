@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContactListComponent } from './contact-list/contact-list.component';
+import { Contact } from './contact.model';
 
 @Component({
   selector: 'cms-contacts',
@@ -8,5 +8,5 @@ import { ContactListComponent } from './contact-list/contact-list.component';
   styleUrl: './contacts.component.css',
 })
 export class ContactsComponent {
-
+  selectedContact: Contact | null = null;
 }
