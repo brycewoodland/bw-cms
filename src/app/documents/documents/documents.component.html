@@ -1,11 +1,9 @@
 <div class="row">
     <div class="col-md-5">
-      <cms-document-list></cms-document-list>
-    <!--Add tag to load the DocumentListComponent here-->
+      <cms-document-list (selectedDocumentEvent)="selectedDocument = $event"></cms-document-list>
     </div>
   
   <div class="col-md-4">
-    <cms-document-detail></cms-document-detail>
-  <!--Add tag to load the DocumentDetailComponent here-->
+    <cms-document-detail *ngIf="selectedDocument" [document]="selectedDocument"></cms-document-detail>
   </div>
   </div>
