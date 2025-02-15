@@ -1,7 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Contact } from '../contact.model';
 import { ContactService } from '../contact.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'cms-contact-detail',
@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './contact-detail.component.css'
 })
 export class ContactDetailComponent implements OnInit {
-  @Input() contact: Contact;
+  contact: Contact;
 
   constructor(
     private contactService: ContactService,
@@ -23,5 +23,11 @@ export class ContactDetailComponent implements OnInit {
       const id = params['id'];
       this.contact = this.contactService.getContact(id);
     })
+  }
+
+  onDelete(): void {
+    this.contactService.deleteContact(this.contact);
+    console.log('Contact deleting.');
+    this.router.navigateByUrl('/contacts');
   }
 }

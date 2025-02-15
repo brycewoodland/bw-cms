@@ -18,10 +18,11 @@ const appRoutes: Routes = [
   },
   { path: 'messages', component: MessageListComponent },
   { path: 'contacts', component: ContactsComponent, children: [
-    { path: 'new', component: ContactEditComponent },
-    { path: ':id', component: ContactDetailComponent },
-    { path: ':id/edit', component: ContactEditComponent }
-  ] }
+      { path: 'new', component: ContactEditComponent },
+      { path: ':id', component: ContactDetailComponent },
+      { path: ':id/edit', component: ContactEditComponent }
+    ] 
+  }
 ];
 
 @NgModule({
