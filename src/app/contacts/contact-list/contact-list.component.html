@@ -1,13 +1,13 @@
 <div class="panel panel-default">
     <div class="panel-heading clearfix">
         <h2 class="panel-body pull-left" style="margin: 0;">Contacts</h2>
-        <a href="#" class="panel-body btn btn-success pull-right" style="margin: 0; line-height: normal;">New Contact</a>
+        <a href="#" class="panel-body btn btn-success pull-right" style="margin: 0; line-height: normal;" [routerLink]="['/contacts', 'new']">New Contact</a>
     </div>
     <div class="row">
         <div class="col-xs-12">
             <cms-contact-item *ngFor="let contact of contacts" 
                               [contact]="contact"
-                              (click)="onSelected(contact)"></cms-contact-item>
+            ></cms-contact-item>
         </div>
     </div>
 </div>
