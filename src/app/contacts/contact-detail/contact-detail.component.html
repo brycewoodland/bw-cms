@@ -3,7 +3,7 @@
         <div>
             <h2 class="mb-0">{{ contact.name }}</h2>
             <div class="panel-actions d-flex align-items-center pull-right">
-                <a class="btn btn-primary mr-3" href="#">Edit</a>
+                <a class="btn btn-primary mr-3" href="#" [routerLink]="['/contacts', contact?.id, 'edit']">Edit</a>
                 <a class="btn btn-danger" href="#">Delete</a>
             </div>
         </div>
