@@ -1,23 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';  // Import Subscription from rxjs
 import { Contact } from '../contact.model';
 import { ContactService } from '../contact.service';
 
 @Component({
   selector: 'cms-contact-list',
-  standalone: false,
   templateUrl: './contact-list.component.html',
-  styleUrl: './contact-list.component.css'
+  standalone: false,
+  styleUrls: ['./contact-list.component.css']
 })
-export class ContactListComponent implements OnInit {
+export class ContactListComponent implements OnInit, OnDestroy {
   contacts: Contact[] = [];
+  subscription: Subscription;  // Declare the subscription variable
 
   constructor(private contactService: ContactService) { 
     this.contacts = this.contactService.getContacts();
   }
 
-  ngOnInit(): void {
-    this.contactService.contactChangedEvent.subscribe((contacts: Contact[]) => {
-      this.contacts = contacts;
-    })
+  ngOnInit() {
+      this.subscription = this.contactService.contactListChangedEvent.subscribe((contacts: Contact[]) => {
+        this.contacts = contacts;
+      });
+    }
+
+  ngOnDestroy(): void {
+    // Unsubscribe when the component is destroyed to avoid memory leaks
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }
