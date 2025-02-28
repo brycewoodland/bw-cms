@@ -30,11 +30,11 @@
               [ngModel]="contact?.email"
               required
               #email="ngModel"
-              pattern=“[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$”>
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"/>
           </div>
         </div>
 
-        <div *ngIf="(email.invalid && email.untouched)" class="alert alert-danger mt-3">
+        <div *ngIf="(email.invalid && email.touched)" class="alert alert-danger mt-3">
             Enter a valid Email address.
         </div>
   
