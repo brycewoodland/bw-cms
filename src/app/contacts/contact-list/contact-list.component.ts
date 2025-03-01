@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';  // Import Subscription from rxjs
+import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Contact } from '../contact.model';
 import { ContactService } from '../contact.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'cms-contact-list',
@@ -11,20 +12,28 @@ import { ContactService } from '../contact.service';
 })
 export class ContactListComponent implements OnInit, OnDestroy {
   contacts: Contact[] = [];
-  subscription: Subscription;  // Declare the subscription variable
+  subscription: Subscription;
+  
+  // This output will emit the dragged contact to the parent (ContactEditComponent)
+  @Output() contactDropped = new EventEmitter<Contact>();
 
-  constructor(private contactService: ContactService) { 
-    this.contacts = this.contactService.getContacts();
-  }
+  constructor(private contactService: ContactService) { }
 
   ngOnInit() {
-      this.subscription = this.contactService.contactListChangedEvent.subscribe((contacts: Contact[]) => {
-        this.contacts = contacts;
-      });
-    }
+    this.contacts = this.contactService.getContacts();
+    this.subscription = this.contactService.contactListChangedEvent.subscribe((contacts: Contact[]) => {
+      this.contacts = contacts;
+    });
+  }
+
+  onDrop(event: CdkDragDrop<Contact[]>) {
+    const draggedContact: Contact = event.item.data;  // Get the contact from the dragged item
+
+    // Emit the dragged contact to parent (ContactEditComponent)
+    this.contactDropped.emit(draggedContact);
+  }  
 
   ngOnDestroy(): void {
-    // Unsubscribe when the component is destroyed to avoid memory leaks
     if (this.subscription) {
       this.subscription.unsubscribe();
     }

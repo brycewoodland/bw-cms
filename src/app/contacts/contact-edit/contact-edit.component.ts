@@ -3,12 +3,13 @@ import { Contact } from '../contact.model';
 import { ContactService } from '../contact.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'cms-contact-edit',
   standalone: false,
   templateUrl: './contact-edit.component.html',
-  styleUrl: './contact-edit.component.css'
+  styleUrls: ['./contact-edit.component.css']
 })
 export class ContactEditComponent implements OnInit {
   originalContact: Contact;
@@ -65,5 +66,24 @@ export class ContactEditComponent implements OnInit {
 
   onCancel() {
     this.router.navigate(['/contacts']);
+  }
+
+  // Handle the drop event when a contact is dropped in the drop zone
+  onDrop(event: CdkDragDrop<Contact[]>) {
+    const contact = event.item.data as Contact;  // The contact being dragged
+
+    // Check if the contact is already in the group
+    if (!this.isContactInGroup(contact)) {
+      this.groupContacts.push(contact);  // Add it to groupContacts if not already present
+    }
+  }
+
+  // Check if the contact is already in the group
+  isContactInGroup(contact: Contact): boolean {
+    return this.groupContacts.some(c => c.id === contact.id);
+  }
+
+  onRemoveItem(index: number) {
+    this.groupContacts.splice(index, 1);  // Remove a contact from the group
   }
 }
