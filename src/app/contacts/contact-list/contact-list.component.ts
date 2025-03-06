@@ -20,11 +20,14 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   constructor(private contactService: ContactService) { }
 
-  ngOnInit() {
-    this.contacts = this.contactService.getContacts();
-    this.subscription = this.contactService.contactListChangedEvent.subscribe((contacts: Contact[]) => {
-      this.contacts = contacts;
-    });
+  ngOnInit(): void {
+    this.subscription = this.contactService.contactListChangedEvent.subscribe(
+      (contacts: Contact[]) => {
+        this.contacts = contacts;
+      }
+    );
+    // Fetch contacts when the component is initialized
+    this.contactService.getContacts();
   }
 
   onDrop(event: CdkDragDrop<Contact[]>) {
