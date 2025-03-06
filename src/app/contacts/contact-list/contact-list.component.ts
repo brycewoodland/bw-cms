@@ -13,6 +13,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 export class ContactListComponent implements OnInit, OnDestroy {
   contacts: Contact[] = [];
   subscription: Subscription;
+  term: string;
   
   // This output will emit the dragged contact to the parent (ContactEditComponent)
   @Output() contactDropped = new EventEmitter<Contact>();
@@ -37,5 +38,9 @@ export class ContactListComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  search(value: string) {
+    this.term = value;
   }
 }
