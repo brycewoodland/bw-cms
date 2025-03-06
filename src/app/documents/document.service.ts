@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Document } from '../documents/document.model';
 import { Subject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -63,8 +63,7 @@ export class DocumentService {
     this.maxDocumentId++;
     newDocument.id = this.maxDocumentId.toString();
     this.documents.push(newDocument);
-    const documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    this.storeDocuments(); // Save changes to Firebase
   }
 
   updateDocument(originalDocument: Document, newDocument: Document) {
@@ -77,8 +76,7 @@ export class DocumentService {
     }
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
-    const documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    this.storeDocuments(); // Save changes to Firebase
   }
 
   deleteDocument(document: Document): void {
@@ -90,7 +88,23 @@ export class DocumentService {
       return;
     }
     this.documents.splice(pos, 1);
-    const documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    this.storeDocuments(); // Save changes to Firebase
+  }
+
+  storeDocuments() {
+    // Convert documents array to a JSON string
+    const documentsJson = JSON.stringify(this.documents);
+
+    // Set HTTP headers
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json'});
+
+    // Send an HTTP PUT request to update the Firebase database
+    this.http.put(`${this.firebaseUrl}/documents.json`, documentsJson, { headers })
+      .subscribe(() => {
+        // Emit documentListChangedEvent with a cloned array when the request is successful
+        this.documentListChangedEvent.next(this.documents.slice());
+      }, (error) => {
+        console.error('Error storing documents:', error);
+      })
   }
 }
