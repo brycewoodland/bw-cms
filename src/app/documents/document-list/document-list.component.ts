@@ -11,17 +11,18 @@ import { Subscription } from 'rxjs';
 })
 export class DocumentListComponent implements OnInit, OnDestroy {
   documents: Document[] = [];
-  document: string = '';
   subscription: Subscription; 
 
-  constructor(private documentService: DocumentService) {
-    this.documents = this.documentService.getDocuments();
-  }
+  constructor(private documentService: DocumentService) { }
 
   ngOnInit() {
+    // Subscribe to document list changes
     this.subscription = this.documentService.documentListChangedEvent.subscribe((documents: Document[]) => {
       this.documents = documents;
     });
+
+    // Fetch documents from Firebase
+    this.documentService.getDocuments();
   }
 
   ngOnDestroy() {
