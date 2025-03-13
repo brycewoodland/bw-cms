@@ -12,7 +12,7 @@ var index = require('./server/routes/app');
 // ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ... 
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
-const documentsRoutes = require('./server/routes/documents');
+const documentRoutes = require('./server/routes/documents');
 
 var app = express(); // create an instance of express
 
