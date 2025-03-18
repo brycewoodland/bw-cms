@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Message } from './message.model';
+import { Contact } from '../contacts/contact.model';
 import { Subject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -19,20 +20,26 @@ export class MessageService {
     this.http.get<Message[]>(`${this.mongoUrl}`).subscribe(
       (messages: Message[]) => {
         this.messages = messages ? messages : [];
-
-        this.maxMessageId = this.getMaxId(); // Update max ID
-
-        // Sort messages alphabetically by subject
-        this.messages.sort((a, b) => (a.subject < b.subject ? -1 : a.subject > b.subject ? 1 : 0));
-
-        // Emit the updated message list
-        this.messageListChangedEvent.next(this.messages.slice());
+        this.maxMessageId = this.getMaxId();
+  
+        // Fetch contacts separately to resolve sender names
+        this.http.get<Contact[]>('http://localhost:3000/contacts').subscribe((contacts) => {
+          this.messages.forEach(msg => {
+            const senderContact = contacts.find(c => c.id === msg.sender);
+            if (senderContact) {
+              msg.sender = senderContact; // Replace ObjectId with actual Contact
+            }
+          });
+  
+          this.sortAndSend();
+        });
       },
-      (error: any) => {
+      (error) => {
         console.error('Error fetching messages:', error);
       }
     );
   }
+  
 
   getMessage(id: string): Message | null {
     return this.messages.find(message => message.id === id) || null;
