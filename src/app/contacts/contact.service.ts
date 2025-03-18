@@ -11,17 +11,18 @@ export class ContactService {
   contactSelectedEvent = new EventEmitter<Contact>();
   contactListChangedEvent = new Subject<Contact[]>();
   maxContactId: number;
-  private firebaseUrl = 'https://bwcms-62379-default-rtdb.firebaseio.com/contacts.json';
+  private mongoUrl = 'http://localhost:3000/contacts';
 
-  constructor(private http: HttpClient) {
-    this.getContacts();
-  }
+  constructor(private http: HttpClient) {}
 
   getContacts() {
-    this.http.get<Contact[]>(this.firebaseUrl).subscribe(
+    this.http.get<Contact[]>(this.mongoUrl).subscribe(
       (contacts: Contact[]) => {
         this.contacts = contacts ? contacts : [];
         this.maxContactId = this.getMaxId();
+
+        // Sort contacts by name
+        this.contacts.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 
         // Emit updated contact list
         this.contactListChangedEvent.next(this.contacts.slice());
@@ -32,13 +33,8 @@ export class ContactService {
     );
   }
 
-  getContact(id: string): Contact {
-    for (let contact of this.contacts) {
-      if (contact.id === id) {
-        return contact;
-      }
-    }
-    return null;
+  getContact(id: string): Contact | null {
+    return this.contacts.find(contact => contact.id === id) || null;
   }
 
   getMaxId(): number {
@@ -57,10 +53,20 @@ export class ContactService {
       return;
     }
 
-    this.maxContactId++;
-    newContact.id = this.maxContactId.toString();
-    this.contacts.push(newContact);
-    this.storeContacts(); // Save to Firebase
+    // Ensure new contact has no ID before sending it
+    newContact.id = '';
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.post<{ message: string; contact: Contact }>(this.mongoUrl, newContact, { headers }).subscribe(
+      (responseData) => {
+        this.contacts.push(responseData.contact);
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error adding contact:', error);
+      }
+    );
   }
 
   updateContact(originalContact: Contact, newContact: Contact) {
@@ -68,35 +74,52 @@ export class ContactService {
       return;
     }
 
-    const pos = this.contacts.indexOf(originalContact);
+    const pos = this.contacts.findIndex(c => c.id === originalContact.id);
     if (pos < 0) {
       return;
     }
 
     newContact.id = originalContact.id;
-    this.contacts[pos] = newContact;
-    this.storeContacts(); // Save to Firebase
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.put<{ message: string; contact: Contact }>(`${this.mongoUrl}/${originalContact.id}`, newContact, { headers }).subscribe(
+      () => {
+        this.contacts[pos] = newContact;
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error updating contact:', error);
+      }
+    );
   }
 
-  deleteContact(contact: Contact): void {
-    if (!contact) {
+  deleteContact(contact: Contact) {
+    if (!contact || !contact.id) {
       return;
     }
 
-    const pos = this.contacts.indexOf(contact);
+    const pos = this.contacts.findIndex(c => c.id === contact.id);
     if (pos < 0) {
       return;
     }
 
-    this.contacts.splice(pos, 1);
-    this.storeContacts(); // Save to Firebase
+    this.http.delete(`${this.mongoUrl}/${contact.id}`).subscribe(
+      () => {
+        this.contacts.splice(pos, 1);
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error deleting contact:', error);
+      }
+    );
   }
 
   storeContacts() {
     const contactsJson = JSON.stringify(this.contacts);
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-    this.http.put(this.firebaseUrl, contactsJson, { headers }).subscribe(
+    this.http.put(this.mongoUrl, contactsJson, { headers }).subscribe(
       () => {
         this.contactListChangedEvent.next(this.contacts.slice());
       },
@@ -104,5 +127,10 @@ export class ContactService {
         console.error('Error storing contacts:', error);
       }
     );
+  }
+
+  private sortAndSend() {
+    this.contacts.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    this.contactListChangedEvent.next(this.contacts.slice());
   }
 }

@@ -14,7 +14,7 @@ export class MessageEditComponent {
 
   currentSender: string = '1';
 
-  constructor(private messageService: MessageService) {}
+  constructor(private MessageService: MessageService) {}
 
   onSendMessage(): void{
     const subject = this.subjectInputRef.nativeElement.value;
@@ -27,7 +27,7 @@ export class MessageEditComponent {
       this.currentSender
     );
     
-    this.messageService.addMessage(newMessage);
+    this.MessageService.addMessage(newMessage);
     this.onClear();
   }
 

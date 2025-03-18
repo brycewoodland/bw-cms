@@ -1,37 +1,40 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Message } from './message.model';
-import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
-  messages: Message[] = [];
+  messages: Message[] = []; // Initialize with an empty array
   messageSelectedEvent = new EventEmitter<Message>();
-  messageChangedEvent = new Subject<Message[]>();
+  messageListChangedEvent = new Subject<Message[]>();
   maxMessageId: number;
-  private firebaseUrl = 'https://bwcms-62379-default-rtdb.firebaseio.com/';
+  private mongoUrl = 'http://localhost:3000/messages';
 
-  constructor(private http: HttpClient) { 
-    this.maxMessageId = 0; // Initialize maxMessageId
-    this.getMessages(); // Call to fetch messages when the service is initialized
-  }
+  constructor(private http: HttpClient) {}
 
   getMessages() {
-    this.http.get<Message[]>(`${this.firebaseUrl}/messages.json`).subscribe(
+    this.http.get<Message[]>(`${this.mongoUrl}`).subscribe(
       (messages: Message[]) => {
         this.messages = messages ? messages : [];
-        this.maxMessageId = this.getMaxId(); // Update maxMessageId
-        this.messageChangedEvent.next(this.messages.slice());
+
+        this.maxMessageId = this.getMaxId(); // Update max ID
+
+        // Sort messages alphabetically by subject
+        this.messages.sort((a, b) => (a.subject < b.subject ? -1 : a.subject > b.subject ? 1 : 0));
+
+        // Emit the updated message list
+        this.messageListChangedEvent.next(this.messages.slice());
       },
-      (error) => {
+      (error: any) => {
         console.error('Error fetching messages:', error);
       }
     );
   }
 
-  getMessage(id: string): Message {
+  getMessage(id: string): Message | null {
     return this.messages.find(message => message.id === id) || null;
   }
 
@@ -50,29 +53,94 @@ export class MessageService {
     if (!message) {
       return;
     }
-    this.maxMessageId++;
-    message.id = this.maxMessageId.toString();
-    this.messages.push(message);
-    this.storeMessages(); // Save the updated messages list to the database
+
+    // Ensure the new message has no ID (to let backend assign it)
+    message.id = '';
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.post<{ message: string; newMessage: Message }>(
+      `${this.mongoUrl}`,
+      message,
+      { headers }
+    ).subscribe(
+      (responseData) => {
+        this.messages.push(responseData.newMessage);
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error adding message:', error);
+      }
+    );
+  }
+
+  updateMessage(originalMessage: Message, newMessage: Message) {
+    if (!originalMessage || !newMessage) {
+      return;
+    }
+
+    const pos = this.messages.findIndex(m => m.id === originalMessage.id);
+    if (pos < 0) {
+      return;
+    }
+
+    // Ensure the updated message keeps the same ID
+    newMessage.id = originalMessage.id;
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.put<{ message: string; updatedMessage: Message }>(
+      `${this.mongoUrl}/${originalMessage.id}`,
+      newMessage,
+      { headers }
+    ).subscribe(
+      (response) => {
+        this.messages[pos] = response.updatedMessage;
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error updating message:', error);
+      }
+    );
+  }
+
+  deleteMessage(message: Message) {
+    if (!message || !message.id) {
+      return;
+    }
+
+    const pos = this.messages.findIndex(m => m.id === message.id);
+    if (pos < 0) {
+      return;
+    }
+
+    this.http.delete(`${this.mongoUrl}/${message.id}`).subscribe(
+      () => {
+        this.messages.splice(pos, 1);
+        this.sortAndSend();
+      },
+      (error) => {
+        console.error('Error deleting message:', error);
+      }
+    );
   }
 
   storeMessages() {
-    const messagesArray = JSON.stringify(this.messages); // Convert the message list to string format
-  
-    // Ensure the URL ends with .json for Firebase compatibility
-    const firebaseUrlWithJson = `${this.firebaseUrl}/messages.json`;
-  
-    this.http.put(firebaseUrlWithJson, messagesArray, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).subscribe(
+    const messagesJson = JSON.stringify(this.messages);
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.put(`${this.mongoUrl}/messages.json`, messagesJson, { headers }).subscribe(
       () => {
-        this.messageChangedEvent.next(this.messages.slice()); // Emit updated messages list
+        this.messageListChangedEvent.next(this.messages.slice());
       },
       (error) => {
-        console.error('Error saving messages:', error);
+        console.error('Error storing messages:', error);
       }
     );
-  }  
+  }
+
+  private sortAndSend() {
+    this.messages.sort((a, b) => (a.subject < b.subject ? -1 : a.subject > b.subject ? 1 : 0));
+    this.messageListChangedEvent.next(this.messages.slice());
+  }
 }

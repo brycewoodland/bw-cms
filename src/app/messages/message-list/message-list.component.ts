@@ -13,14 +13,14 @@ export class MessageListComponent implements OnInit, OnDestroy {
   messages: Message[] = [];
   private messageSubscription: Subscription; // For handling the subscription
 
-  constructor(private messageService: MessageService) {}
+  constructor(private MessageService: MessageService) {}
 
   ngOnInit(): void {
     // Call getMessages to fetch the messages from the server
-    this.messageService.getMessages();
+    this.MessageService.getMessages();
 
     // Subscribe to the messageChangedEvent to get updated messages whenever the list changes
-    this.messageSubscription = this.messageService.messageChangedEvent.subscribe(
+    this.messageSubscription = this.MessageService.messageListChangedEvent.subscribe(
       (messages: Message[]) => {
         this.messages = messages; // Update the messages list
       }

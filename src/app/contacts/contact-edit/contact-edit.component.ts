@@ -19,7 +19,7 @@ export class ContactEditComponent implements OnInit {
   id: string;
 
   constructor(
-    private contactService: ContactService,
+    private ContactService: ContactService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -33,7 +33,7 @@ export class ContactEditComponent implements OnInit {
         return;
       }
 
-      this.originalContact = this.contactService.getContact(this.id);
+      this.originalContact = this.ContactService.getContact(this.id);
 
       if (!this.originalContact) {
         return;
@@ -56,9 +56,9 @@ export class ContactEditComponent implements OnInit {
     );
 
     if (this.editMode) {
-      this.contactService.updateContact(this.originalContact, newContact);
+      this.ContactService.updateContact(this.originalContact, newContact);
     } else {
-      this.contactService.addContact(newContact);
+      this.ContactService.addContact(newContact);
     }
 
     this.router.navigate(['/contacts']);

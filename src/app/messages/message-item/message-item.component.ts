@@ -14,10 +14,33 @@ export class MessageItemComponent implements OnInit {
   @Input() message: Message;
   messageSender: string = '';
 
-  constructor(private contactService: ContactService) {}
+  constructor(private ContactService: ContactService) {}
 
   ngOnInit(): void {
-    const contact: Contact = this.contactService.getContact(this.message.sender);
+    if (!this.message) {
+      console.error('Message is undefined in MessageItemComponent');
+      return;
+    }
+  
+    if (!this.message.sender) {
+      console.error('Message sender is undefined:', this.message);
+      return;
+    }
+  
+    console.log('Raw sender ID:', this.message.sender);
+  
+    // Convert sender ID to string (if necessary)
+    const senderId = this.message.sender.toString();  
+  
+    console.log('Converted sender ID:', senderId);
+  
+    const contact: Contact = this.ContactService.getContact(senderId);
+  
+    if (!contact) {
+      console.warn('No contact found for sender ID:', senderId);
+      return;
+    }
+  
     this.messageSender = contact.name;
-  }
+  }  
 }

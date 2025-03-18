@@ -13,7 +13,7 @@ export class ContactDetailComponent implements OnInit {
   contact: Contact;
 
   constructor(
-    private contactService: ContactService,
+    private ContactService: ContactService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -21,12 +21,12 @@ export class ContactDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = params['id'];
-      this.contact = this.contactService.getContact(id);
+      this.contact = this.ContactService.getContact(id);
     })
   }
 
   onDelete(): void {
-    this.contactService.deleteContact(this.contact);
+    this.ContactService.deleteContact(this.contact);
     console.log('Contact deleting.');
     this.router.navigateByUrl('/contacts');
   }

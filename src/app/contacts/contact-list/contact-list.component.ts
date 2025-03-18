@@ -18,16 +18,16 @@ export class ContactListComponent implements OnInit, OnDestroy {
   // This output will emit the dragged contact to the parent (ContactEditComponent)
   @Output() contactDropped = new EventEmitter<Contact>();
 
-  constructor(private contactService: ContactService) { }
+  constructor(private ContactService: ContactService) { }
 
   ngOnInit(): void {
-    this.subscription = this.contactService.contactListChangedEvent.subscribe(
+    this.subscription = this.ContactService.contactListChangedEvent.subscribe(
       (contacts: Contact[]) => {
         this.contacts = contacts;
       }
     );
     // Fetch contacts when the component is initialized
-    this.contactService.getContacts();
+    this.ContactService.getContacts();
   }
 
   onDrop(event: CdkDragDrop<Contact[]>) {
